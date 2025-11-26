@@ -1,6 +1,7 @@
 import { chromium, type Page } from '@playwright/test';
 import * as http from 'http';
 import * as readline from 'readline';
+import { htmlToMarkdown } from './html-to-markdown';
 
 function getWebSocketUrl(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -48,8 +49,10 @@ async function waitForResponse(page: Page): Promise<void> {
       if (hasClass) break;
     }
   }
-  const text = await lastResp.locator('message-content').textContent();
-  console.log(text);
+  const messageContentHTML = await lastResp.locator('message-content').evaluate(el => el.outerHTML);
+  const markdownContent = htmlToMarkdown(messageContentHTML);
+  console.log(`-- messageContentMarkdown:`)
+  console.log(markdownContent);
 }
 
 async function waitForCopyButton(page: Page): Promise<void> {
